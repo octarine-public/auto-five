@@ -1,0 +1,57 @@
+import { EventsX, GameX, HeroX, HighFive } from "immortal-core/Imports"
+import { ArrayExtensions, EventsSDK, Menu as MenuSDK } from "wrapper/Imports"
+import Queue from "./Queue"
+
+const Menu = MenuSDK.AddEntry("Utility")
+const Tree = Menu.AddNode("Auto five", "panorama/images/spellicons/consumables/plus_high_five_png.vtex_c", "Use auto five", 0)
+const State = Tree.AddToggle("State", true)
+const Delay = Tree.AddSlider("Delay", 0, 0, 9, 0, "Delay before use (sec)")
+
+const Heroes: HeroX[] = []
+const UseQueue: Queue[] = []
+const Abilities: HighFive[] = []
+
+EventsSDK.on("Tick", () => {
+
+	if (!State.value || !GameX.IsInGame)
+		return
+
+	for (const queue of UseQueue) {
+		if (queue.Sleeper.RemainingSleepTime > 0.01)
+			continue
+		queue.UseAbility()
+		queue.Sleeper.Reset()
+		ArrayExtensions.arrayRemove(UseQueue, queue)
+	}
+
+	for (const hero of Heroes) {
+		if (!hero.IsAlive || !hero.IsVisible)
+			continue
+		if (hero.IsMyHero || !hero.HasBuffByName("modifier_plus_high_five_requested"))
+			continue
+		for (const abil of Abilities) {
+			const caster = abil.Owner
+			if (caster === undefined || caster.IsInvulnerable || caster.IsEnemy())
+				continue
+			if (!caster.IsControllable || !abil.CanBeCasted() || caster.Distance2D(hero) > abil.Radius)
+				continue
+			Delay.value === 0
+				? abil.UseAbility()
+				: UseQueue.push(new Queue(Delay.value, hero, abil))
+		}
+	}
+})
+
+EventsX.on("EntityCreated", ent => {
+	if (ent instanceof HeroX)
+		Heroes.push(ent)
+	if (ent instanceof HighFive)
+		Abilities.push(ent)
+})
+
+EventsX.on("EntityDestroyed", ent => {
+	if (ent instanceof HeroX)
+		ArrayExtensions.arrayRemove(Heroes, ent)
+	if (ent instanceof HighFive)
+		ArrayExtensions.arrayRemove(Abilities, ent)
+})

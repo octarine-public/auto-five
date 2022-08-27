@@ -1,0 +1,28 @@
+{
+	"name": "item-panel",
+	"version": "1.0.0",
+	"description": "Item panel",
+	"devDependencies": {
+		"tslint": "beta",
+		"typescript": "next"
+	},
+	"scripts": {
+		"check-types": "npx tsc",
+		"check-types-watch": "npx tsc --watch",
+		"check-circular": "npx madge --circular scripts",
+		"lint": "npx tslint --fix -p ."
+	},
+	"contributors": [
+		"MoofMonkey",
+		"SicdeX"
+	],
+	"license": "GNU General Public License v3.0",
+	"repository": {
+		"type": "git",
+		"directory": "/",
+		"url": "https://github.com/octarine-public/item-panel"
+	},
+	"dependencies": {
+		"lint": "^0.7.0"
+	}
+}

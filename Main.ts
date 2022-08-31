@@ -31,7 +31,7 @@ EventsSDK.on("Tick", () => {
 			continue
 		for (const abil of Abilities) {
 			const caster = abil.Owner
-			if (caster === undefined || caster.IsInvulnerable || caster.IsEnemy())
+			if (caster === undefined || caster.IsInvulnerable || caster.IsEnemy() || caster.IsInvisible || !caster.IsVisibleForEnemies)
 				continue
 			if (!caster.IsControllable || !abil.CanBeCasted() || caster.Distance2D(hero) > abil.Radius)
 				continue

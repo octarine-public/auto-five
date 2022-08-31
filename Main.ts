@@ -5,7 +5,7 @@ import Queue from "./Queue"
 const Menu = MenuSDK.AddEntry("Utility")
 const Tree = Menu.AddNode("Auto five", "panorama/images/spellicons/consumables/plus_high_five_png.vtex_c", "Use auto five", 0)
 const State = Tree.AddToggle("State", true)
-const Delay = Tree.AddSlider("Delay", 0, 0, 9, 0, "Delay before use (sec)")
+const Delay = Tree.AddSlider("DelayAutoFive", 2, 0, 9, 0, "Delay before use (sec)")
 
 const Heroes: HeroX[] = []
 const UseQueue: Queue[] = []

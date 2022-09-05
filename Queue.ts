@@ -1,4 +1,4 @@
-import { HeroX, HighFive, TickSleeperX } from "immortal-core/Imports"
+import { HeroX, HighFive, TickSleeperX } from "github.com/octarine-private/immortal-core/Imports"
 
 export default class Queue {
 
@@ -18,7 +18,7 @@ export default class Queue {
 		const caster = this.ability.Owner
 		if (caster === undefined || caster.IsInvulnerable)
 			return
-		if (!caster.IsControllable || !this.ability.CanBeCasted() || caster.Distance2D(this.hero) > this.ability.Radius)
+		if (!caster.IsControllable || !this.ability.CanBeCasted() || caster.Distance(this.hero) > this.ability.Radius)
 			return
 		this.ability.UseAbility()
 	}

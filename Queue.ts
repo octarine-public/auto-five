@@ -1,4 +1,4 @@
-import { HeroX, HighFive, TickSleeperX } from "github.com/octarine-private/immortal-core/Imports"
+import { HeroX, HighFive, TickSleeperX } from "github.com/octarine-private/immortal-core/index"
 
 export default class Queue {
 

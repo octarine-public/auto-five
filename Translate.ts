@@ -1,4 +1,4 @@
-import { Menu, Utils } from "github.com/octarine-public/wrapper/wrapper/Imports"
+import { Menu, Utils } from "github.com/octarine-public/wrapper/index"
 
 const base = "github.com/octarine-public/auto-five/scripts_files"
 const Load = (name: string) => {

@@ -1,5 +1,5 @@
-import { EventsX, GameX, HeroX, HighFive } from "github.com/octarine-private/immortal-core/Imports"
-import { ArrayExtensions, EventsSDK, Menu as MenuSDK } from "github.com/octarine-public/wrapper/wrapper/Imports"
+import { EventsX, GameX, HeroX, HighFive } from "github.com/octarine-private/immortal-core/index"
+import { ArrayExtensions, EventsSDK, Menu as MenuSDK } from "github.com/octarine-public/wrapper/index"
 import Queue from "./Queue"
 
 const Menu = MenuSDK.AddEntry("Utility")

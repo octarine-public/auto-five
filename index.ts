@@ -1,10 +1,12 @@
 import { EventsX, GameX, HeroX, HighFive } from "github.com/octarine-private/immortal-core/index"
 import { ArrayExtensions, EventsSDK, Menu as MenuSDK } from "github.com/octarine-public/wrapper/index"
 import Queue from "./Queue"
+import "./Translate"
 
 const Menu = MenuSDK.AddEntry("Utility")
 const Tree = Menu.AddNode("Auto five", "panorama/images/spellicons/consumables/plus_high_five_png.vtex_c", "Use auto five", 0)
 const State = Tree.AddToggle("State", true)
+const OnlyAlly = Tree.AddToggle("OnlyAllyAutoFive", false)
 const Delay = Tree.AddSlider("DelayAutoFive", 2, 0, 9, 0, "Delay before use (sec)")
 
 const Heroes: HeroX[] = []
@@ -25,6 +27,8 @@ EventsSDK.on("Tick", () => {
 	}
 
 	for (const hero of Heroes) {
+		if (hero.IsEnemy() && OnlyAlly.value)
+			continue
 		if (!hero.IsAlive || !hero.IsVisible)
 			continue
 		if (hero.IsMyHero || !hero.HasBuffByName("modifier_plus_high_five_requested"))

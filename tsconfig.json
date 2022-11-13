@@ -20,6 +20,7 @@
 		"../../../**/*.d.ts"
 	],
 	"exclude": [
+		"../../octarine-web/*",
 		"wrapper_autogen/**/*",
 		"node_modules/**/*",
 		"scripts_files/**/*"

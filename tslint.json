@@ -23,8 +23,7 @@
 		],
 		"indent": [
 			true,
-			"tabs",
-			4
+			"tabs"
 		],
 		"curly": false,
 		"arrow-parens": [
@@ -87,7 +86,10 @@
 				"singleline": "never",
 				"esSpecCompliant": true
 			}
-		]
+		],
+		"await-promise": true,
+		"no-async-without-await": true,
+		"no-floating-promises": true
 	},
 	"rulesDirectory": [],
 	"linterOptions": {

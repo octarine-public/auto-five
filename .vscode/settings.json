@@ -1,10 +1,11 @@
 {
-    "editor.formatOnSave": true,
+    "eslint.enable": true,
     "editor.insertSpaces": false,
+    "npm.packageManager": "yarn",
+    "task.allowAutomaticTasks": "on",
     "typescript.format.semicolons": "remove",
-    "typescript.tsdk": "node_modules\\typescript\\lib",
     "editor.codeActionsOnSave": {
-        "source.fixAll.tslint": true
+        "source.fixAll.eslint": true
     },
-    "task.allowAutomaticTasks": "on"
+    "files.eol": "\n",
 }

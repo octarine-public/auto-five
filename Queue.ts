@@ -8,15 +8,16 @@ export class Queue {
 	}
 
 	public UseAbility() {
-		if (!this.hero.HasBuffByName("modifier_plus_high_five_requested")) return
-		const caster = this.ability.Owner
-		if (caster === undefined || caster.IsInvulnerable) return
-		if (
-			!caster.IsControllable ||
-			!this.ability.CanBeCasted() ||
-			caster.Distance(this.hero) > this.ability.Radius
-		)
+		if (!this.hero.HasBuffByName("modifier_plus_high_five_requested")) {
 			return
+		}
+		const caster = this.ability.Owner
+		if (caster === undefined || caster.IsInvulnerable) {
+			return
+		}
+		if (!caster.IsControllable || !this.ability.CanBeCasted() || caster.Distance(this.hero) > this.ability.Radius) {
+			return
+		}
 		this.ability.UseAbility()
 	}
 }

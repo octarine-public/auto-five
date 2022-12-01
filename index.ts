@@ -1,11 +1,7 @@
 import "./Translate"
 
 import { EventsX, GameX, HeroX, HighFive } from "github.com/octarine-private/immortal-core/index"
-import {
-	ArrayExtensions,
-	EventsSDK,
-	Menu as MenuSDK
-} from "github.com/octarine-public/wrapper/index"
+import { ArrayExtensions, EventsSDK, Menu as MenuSDK } from "github.com/octarine-public/wrapper/index"
 
 import { Queue } from "./Queue"
 
@@ -25,19 +21,29 @@ const UseQueue: Queue[] = []
 const Abilities: HighFive[] = []
 
 EventsSDK.on("Tick", () => {
-	if (!State.value || !GameX.IsInGame) return
+	if (!State.value || !GameX.IsInGame) {
+		return
+	}
 
 	for (const queue of UseQueue) {
-		if (queue.Sleeper.RemainingSleepTime > 0.01) continue
+		if (queue.Sleeper.RemainingSleepTime > 0.01) {
+			continue
+		}
 		queue.UseAbility()
 		queue.Sleeper.Reset()
 		ArrayExtensions.arrayRemove(UseQueue, queue)
 	}
 
 	for (const hero of Heroes) {
-		if (hero.IsEnemy() && OnlyAlly.value) continue
-		if (!hero.IsAlive || !hero.IsVisible) continue
-		if (hero.IsMyHero || !hero.HasBuffByName("modifier_plus_high_five_requested")) continue
+		if (hero.IsEnemy() && OnlyAlly.value) {
+			continue
+		}
+		if (!hero.IsAlive || !hero.IsVisible) {
+			continue
+		}
+		if (hero.IsMyHero || !hero.HasBuffByName("modifier_plus_high_five_requested")) {
+			continue
+		}
 		for (const abil of Abilities) {
 			const caster = abil.Owner
 			if (
@@ -46,28 +52,37 @@ EventsSDK.on("Tick", () => {
 				caster.IsEnemy() ||
 				caster.IsInvisible ||
 				!caster.IsVisibleForEnemies
-			)
+			) {
 				continue
+			}
 
-			if (
-				!caster.IsControllable ||
-				!abil.CanBeCasted() ||
-				caster.Distance(hero) > abil.Radius
-			)
+			if (!caster.IsControllable || !abil.CanBeCasted() || caster.Distance(hero) > abil.Radius) {
 				continue
+			}
 
-			if (Delay.value !== 0) abil.UseAbility()
-			else UseQueue.push(new Queue(Delay.value, hero, abil))
+			if (Delay.value !== 0) {
+				abil.UseAbility()
+			} else {
+				UseQueue.push(new Queue(Delay.value, hero, abil))
+			}
 		}
 	}
 })
 
 EventsX.on("EntityCreated", ent => {
-	if (ent instanceof HeroX) Heroes.push(ent)
-	if (ent instanceof HighFive) Abilities.push(ent)
+	if (ent instanceof HeroX) {
+		Heroes.push(ent)
+	}
+	if (ent instanceof HighFive) {
+		Abilities.push(ent)
+	}
 })
 
 EventsX.on("EntityDestroyed", ent => {
-	if (ent instanceof HeroX) ArrayExtensions.arrayRemove(Heroes, ent)
-	if (ent instanceof HighFive) ArrayExtensions.arrayRemove(Abilities, ent)
+	if (ent instanceof HeroX) {
+		ArrayExtensions.arrayRemove(Heroes, ent)
+	}
+	if (ent instanceof HighFive) {
+		ArrayExtensions.arrayRemove(Abilities, ent)
+	}
 })

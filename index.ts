@@ -46,13 +46,7 @@ EventsSDK.on("Tick", () => {
 		}
 		for (const abil of Abilities) {
 			const caster = abil.Owner
-			if (
-				caster === undefined ||
-				caster.IsInvulnerable ||
-				caster.IsEnemy() ||
-				caster.IsInvisible ||
-				!caster.IsVisibleForEnemies
-			) {
+			if (caster === undefined || caster.IsInvulnerable || caster.IsEnemy() || caster.IsInvisible) {
 				continue
 			}
 

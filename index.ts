@@ -12,6 +12,7 @@ const Tree = Menu.AddNode(
 	"Use auto five",
 	0
 )
+
 const State = Tree.AddToggle("State", true)
 const OnlyAlly = Tree.AddToggle("OnlyAllyAutoFive", false)
 const Delay = Tree.AddSlider("DelayAutoFive", 2, 0, 9, 0, "Delay before use (sec)")
@@ -26,12 +27,11 @@ EventsSDK.on("Tick", () => {
 	}
 
 	for (const queue of UseQueue) {
-		if (queue.Sleeper.RemainingSleepTime > 0.01) {
-			continue
+		if (!queue.Sleeper.IsSleeping) {
+			queue.UseAbility()
+			queue.Sleeper.Reset()
+			ArrayExtensions.arrayRemove(UseQueue, queue)
 		}
-		queue.UseAbility()
-		queue.Sleeper.Reset()
-		ArrayExtensions.arrayRemove(UseQueue, queue)
 	}
 
 	for (const hero of Heroes) {
@@ -54,7 +54,7 @@ EventsSDK.on("Tick", () => {
 				continue
 			}
 
-			if (Delay.value !== 0) {
+			if (Delay.value <= 0) {
 				abil.UseAbility()
 			} else {
 				UseQueue.push(new Queue(Delay.value, hero, abil))

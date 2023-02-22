@@ -1,7 +1,7 @@
 import { HeroX, HighFive, TickSleeperX } from "github.com/octarine-private/immortal-core/index"
 
 export class Queue {
-	public Sleeper = new TickSleeperX()
+	public readonly Sleeper = new TickSleeperX()
 
 	constructor(public delay: number, public hero: HeroX, protected readonly ability: HighFive) {
 		this.Sleeper.Sleep(delay)

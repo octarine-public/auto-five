@@ -12,6 +12,7 @@ const Tree = Menu.AddNode(
 	"Use auto five",
 	0
 )
+
 const State = Tree.AddToggle("State", true)
 const OnlyAlly = Tree.AddToggle("OnlyAllyAutoFive", false)
 const Delay = Tree.AddSlider("DelayAutoFive", 2, 0, 9, 0, "Delay before use (sec)")
@@ -26,7 +27,7 @@ EventsSDK.on("Tick", () => {
 	}
 
 	for (const queue of UseQueue) {
-		if (queue.Sleeper.RemainingSleepTime > 0.01) {
+		if (queue.Sleeper.RemainingSleepTime > 0.1) {
 			continue
 		}
 		queue.UseAbility()

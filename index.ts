@@ -27,12 +27,11 @@ EventsSDK.on("Tick", () => {
 	}
 
 	for (const queue of UseQueue) {
-		if (queue.Sleeper.RemainingSleepTime > 0.1) {
-			continue
+		if (!queue.Sleeper.IsSleeping) {
+			queue.UseAbility()
+			queue.Sleeper.Reset()
+			ArrayExtensions.arrayRemove(UseQueue, queue)
 		}
-		queue.UseAbility()
-		queue.Sleeper.Reset()
-		ArrayExtensions.arrayRemove(UseQueue, queue)
 	}
 
 	for (const hero of Heroes) {
@@ -55,7 +54,7 @@ EventsSDK.on("Tick", () => {
 				continue
 			}
 
-			if (Delay.value !== 0) {
+			if (Delay.value <= 0) {
 				abil.UseAbility()
 			} else {
 				UseQueue.push(new Queue(Delay.value, hero, abil))

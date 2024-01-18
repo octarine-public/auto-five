@@ -1,29 +1,28 @@
 {
+	"compileOnSave": true,
 	"compilerOptions": {
 		"target": "esnext",
 		"module": "ES2022",
 		"moduleResolution": "Node",
 		"rootDir": "../../../",
 		"baseUrl": "../../../",
+		// "outDir": "scripts",
 		"noEmit": true,
 		"noUnusedLocals": true,
 		"strict": true,
-		"outDir": "scripts",
 		"alwaysStrict": true,
 		"experimentalDecorators": true,
+		"forceConsistentCasingInFileNames": true,
 		"lib": [
 			"ESNext"
 		],
-		"forceConsistentCasingInFileNames": true
 	},
 	"include": [
 		"./**/*.ts",
-		"../../../**/*.d.ts"
+		"../../**/*.d.ts"
 	],
 	"exclude": [
-		"../../octarine-web/*",
 		"node_modules/**/*",
-		"scripts_files/**/*"
-	],
-	"compileOnSave": true
+		"scripts_files/**/*",
+	]
 }

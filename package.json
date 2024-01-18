@@ -1,36 +1,37 @@
 {
-	"name": "item-panel",
-	"version": "1.0.0",
-	"description": "Auto five",
+	"name": "auto-five",
+	"version": "2.0.0",
+	"main": "src/index.ts",
+	"description": "Auto Five",
+	"license": "GPL-3.0-or-later",
+	"author": "SicdeX",
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^5.45.0",
-		"@typescript-eslint/parser": "^5.45.0",
-		"eslint": "^8.28.0",
-		"eslint-config-prettier": "^8.5.0",
-		"eslint-plugin-import": "^2.26.0",
-		"eslint-plugin-jsdoc": "^40.0.0",
-		"eslint-plugin-prettier": "^4.2.1",
+		"@typescript-eslint/eslint-plugin": "^6.18.1",
+		"@typescript-eslint/parser": "^6.18.1",
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-prettier": "^5.1.3",
 		"eslint-plugin-simple-import-sort": "^10.0.0",
-		"eslint-plugin-unicorn": "^45.0.1",
-		"eslint-plugin-unused-imports": "^2.0.0",
-		"prettier": "^2.8.0",
-		"typescript": "^4.9.3"
+		"eslint-plugin-unicorn": "^50.0.1",
+		"eslint-plugin-unused-imports": "^3.0.0",
+		"madge": "^6.1.0",
+		"prettier": "^3.2.1",
+		"typescript": "^5.3.3"
 	},
 	"scripts": {
 		"check-types": "npx tsc",
 		"check-types-watch": "npx tsc --watch",
+		"check-circular": "npx madge --circular scripts/",
 		"upgrade-pack": "yarn upgrade-interactive --latest",
-		"check-circular": "npx madge --circular index.ts",
 		"lint": "eslint -c .eslintrc.json --ext .ts --fix ."
 	},
-	"contributors": [
-		"MoofMonkey",
-		"SicdeX"
-	],
-	"license": "GPL-3.0-or-later",
 	"repository": {
 		"type": "git",
 		"directory": "/",
-		"url": "https://github.com/octarine-public/item-panel"
+		"url": "https://github.com/octarine-public/auto-five.git"
+	},
+	"engines": {
+		"node": ">=18"
 	}
 }

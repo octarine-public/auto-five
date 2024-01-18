@@ -1,0 +1,12 @@
+{
+	"State": "Состояние",
+	"Delay": "Задержка",
+	"Auto five": "Авто пять",
+	"Only allies": "Только союзники",
+	"Use when TP": "Использовать при ТП",
+	"Reset settings": "Сбросить настройки",
+	"Use auto five": "Использовать автоматически дай - пять",
+	"Delay before use (sec)": "Задержка перед\nиспользованием (сек)",
+	"Reset settings to default": "Сбросить настройки по умолчанию",
+	"Use during your teleportation\nof an enemy is nearby": "Использовать при вашей телепортации\nесли враг рядом"
+}

@@ -1,16 +1,21 @@
-import { Menu } from "github.com/octarine-public/wrapper/index"
+import {
+	Menu,
+	NotificationsSDK,
+	ResetSettingsUpdated,
+	Sleeper
+} from "github.com/octarine-public/wrapper/index"
 
 export class MenuManager {
 	public readonly State: Menu.Toggle
 	public readonly Delay: Menu.Slider
 	public readonly UseWhenTP: Menu.Toggle
 	public readonly OnlyAllyState: Menu.Toggle
-
 	private readonly baseNode = Menu.AddEntry("Utility")
+
 	private readonly modeIcon =
 		"panorama/images/spellicons/consumables/plus_high_five_png.vtex_c"
 
-	constructor() {
+	constructor(private readonly sleeper: Sleeper) {
 		const tree = this.baseNode.AddNode("Auto five", this.modeIcon, "Use auto five", 0)
 		this.State = tree.AddToggle("State", true)
 		this.UseWhenTP = tree.AddToggle(
@@ -30,9 +35,13 @@ export class MenuManager {
 	}
 
 	protected ResetSettings() {
-		this.State.value = this.State.defaultValue
-		this.Delay.value = this.Delay.defaultValue
-		this.UseWhenTP.value = this.UseWhenTP.defaultValue
-		this.OnlyAllyState.value = this.OnlyAllyState.defaultValue
+		if (!this.sleeper.Sleeping("ResetSettings")) {
+			this.State.value = this.State.defaultValue
+			this.Delay.value = this.Delay.defaultValue
+			this.UseWhenTP.value = this.UseWhenTP.defaultValue
+			this.OnlyAllyState.value = this.OnlyAllyState.defaultValue
+			NotificationsSDK.Push(new ResetSettingsUpdated())
+			this.sleeper.Sleep(2 * 1000, "ResetSettings")
+		}
 	}
 }

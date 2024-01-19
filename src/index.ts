@@ -15,7 +15,7 @@ import { MenuManager } from "./menu"
 
 const bootstrap = new (class CAutoFive {
 	private readonly sleeper = new Sleeper()
-	private readonly menu = new MenuManager()
+	private readonly menu = new MenuManager(this.sleeper)
 
 	private readonly heroes: Hero[] = []
 	private readonly modifiers: Modifier[] = []

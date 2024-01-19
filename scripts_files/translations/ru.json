@@ -8,5 +8,6 @@
 	"Use auto five": "Использовать автоматически дай - пять",
 	"Delay before use (sec)": "Задержка перед\nиспользованием (сек)",
 	"Reset settings to default": "Сбросить настройки по умолчанию",
+	"Only use if it's an ally": "Использовать только\nв том случае, если это союзник",
 	"Use during your teleportation\nof an enemy is nearby": "Использовать при вашей телепортации\nесли враг рядом"
 }

@@ -18,9 +18,12 @@ export class MenuManager {
 			true,
 			"Use during your teleportation\nof an enemy is nearby"
 		)
-		this.OnlyAllyState = tree.AddToggle("Only allies", false)
+		this.OnlyAllyState = tree.AddToggle(
+			"Only allies",
+			false,
+			"Only use if it's an ally"
+		)
 		this.Delay = tree.AddSlider("Delay", 2, 0, 9, 0, "Delay before use (sec)")
-
 		tree.AddButton("Reset settings", "Reset settings to default").OnValue(() =>
 			this.ResetSettings()
 		)

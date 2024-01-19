@@ -31,21 +31,18 @@ const bootstrap = new (class CAutoFive {
 			return
 		}
 		for (let index = this.modifiers.length - 1; index > -1; index--) {
-			const modifier = this.modifiers[index]
-			if (this.sleeper.Sleeping(modifier.Name)) {
-				continue
-			}
-			const caster = modifier.Caster,
+			const modifier = this.modifiers[index],
+				caster = modifier.Caster,
 				requested = modifier.Parent
 			if (caster === undefined) {
 				continue
 			}
 			switch (modifier.Name) {
 				case "modifier_teleporting":
-					this.ShouldUseAbility()
+					this.UseAbility()
 					break
 				default:
-					this.ShouldUseAbility(requested)
+					this.UseAbility(requested)
 					break
 			}
 		}
@@ -86,11 +83,10 @@ const bootstrap = new (class CAutoFive {
 		this.sleeper.FullReset()
 	}
 
-	protected ShouldUseAbility(requested?: Nullable<Unit>) {
+	protected UseAbility(requested?: Nullable<Unit>) {
 		const useAtTP = this.menu.UseWhenTP.value,
 			delay = this.menu.Delay.value,
 			allies = this.menu.OnlyAllyState.value
-
 		for (let index = this.spells.length - 1; index > -1; index--) {
 			const abil = this.spells[index]
 			if (!abil.IsReady) {
@@ -109,20 +105,20 @@ const bootstrap = new (class CAutoFive {
 			// use only ability if owner is caster from teleporting, for requested enemy
 			const isUseTP = useAtTP && owner.HasBuffByName(this.modifierNames[0])
 			if (isUseTP && (requested?.IsEnemy(owner) ?? true)) {
-				this.UseAbility(abil, requested)
+				this.Use(abil, requested)
 				continue
 			}
 			if (allies && (requested?.IsEnemy(owner) ?? false)) {
 				continue
 			}
 			if (!delay) {
-				this.UseAbility(abil, requested)
+				this.Use(abil, requested)
 				continue
 			}
 			const delayKeyName = `delay_${owner.Index}`
 			const remainingTime = this.sleeper.RemainingSleepTime(delayKeyName) / 1000
 			if (remainingTime && remainingTime <= (1 / 30) * 2) {
-				this.UseAbility(abil, requested)
+				this.Use(abil, requested)
 				continue
 			}
 			if (!remainingTime) {
@@ -135,7 +131,7 @@ const bootstrap = new (class CAutoFive {
 		return this.menu.State.value && this.modifierNames.includes(modifier.Name)
 	}
 
-	private UseAbility(abil: plus_high_five, closestUnit: Nullable<Unit>) {
+	private Use(abil: plus_high_five, closestUnit: Nullable<Unit>) {
 		if (this.sleeper.Sleeping("UseAbility")) {
 			return
 		}

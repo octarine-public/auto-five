@@ -12,11 +12,11 @@ export class MenuManager {
 	public readonly OnlyAllyState: Menu.Toggle
 	private readonly baseNode = Menu.AddEntry("Utility")
 
-	private readonly modeIcon =
+	private readonly nodeIcon =
 		"panorama/images/spellicons/consumables/plus_high_five_png.vtex_c"
 
 	constructor(private readonly sleeper: Sleeper) {
-		const tree = this.baseNode.AddNode("Auto five", this.modeIcon, "Use auto five", 0)
+		const tree = this.baseNode.AddNode("Auto five", this.nodeIcon, "Use auto five", 0)
 		this.State = tree.AddToggle("State", true)
 		this.UseWhenTP = tree.AddToggle(
 			"Use when TP",

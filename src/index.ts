@@ -49,13 +49,13 @@ const bootstrap = new (class CAutoFive {
 	}
 
 	public ModifierCreated(modifier: Modifier) {
-		if (this.shoudBeValidModifier(modifier)) {
+		if (this.modifierNames.includes(modifier.Name)) {
 			this.modifiers.push(modifier)
 		}
 	}
 
 	public ModifierRemoved(modifier: Modifier) {
-		if (this.shoudBeValidModifier(modifier)) {
+		if (this.modifierNames.includes(modifier.Name)) {
 			this.modifiers.remove(modifier)
 		}
 	}
@@ -128,10 +128,6 @@ const bootstrap = new (class CAutoFive {
 				this.sleeper.Sleep(delay * 1000, delayKeyName)
 			}
 		}
-	}
-
-	private shoudBeValidModifier(modifier: Modifier) {
-		return this.menu.State.value && this.modifierNames.includes(modifier.Name)
 	}
 
 	private Use(abil: plus_high_five, closestUnit: Nullable<Unit>) {

@@ -49,13 +49,13 @@ const bootstrap = new (class CAutoFive {
 	}
 
 	public ModifierCreated(modifier: Modifier) {
-		if (this.shoudBeValid(modifier)) {
+		if (this.shoudBeValidModifier(modifier)) {
 			this.modifiers.push(modifier)
 		}
 	}
 
 	public ModifierRemoved(modifier: Modifier) {
-		if (this.shoudBeValid(modifier)) {
+		if (this.shoudBeValidModifier(modifier)) {
 			this.modifiers.remove(modifier)
 		}
 	}
@@ -83,7 +83,7 @@ const bootstrap = new (class CAutoFive {
 		this.sleeper.FullReset()
 	}
 
-	protected UseAbility(requested?: Nullable<Unit>) {
+	protected UseAbility(source?: Nullable<Unit>) {
 		const useAtTP = this.menu.UseWhenTP.value,
 			delay = this.menu.Delay.value,
 			allies = this.menu.OnlyAllyState.value
@@ -93,32 +93,35 @@ const bootstrap = new (class CAutoFive {
 				continue
 			}
 			const owner = abil.Owner
-			if (owner === undefined || requested === owner || !owner.IsControllable) {
+			if (owner === undefined || source === owner || !owner.IsControllable) {
 				continue
 			}
-			if (requested === undefined) {
-				requested = this.getRequestedHero(owner)
+			if (source === undefined) {
+				source = this.getRequestedHero(owner)
 			}
-			if (!this.CanBeCasted(owner, requested, abil.AOERadius)) {
+			if (!this.isVaidSource(source)) {
 				continue
 			}
 			// use only ability if owner is caster from teleporting, for requested enemy
 			const isUseTP = useAtTP && owner.HasBuffByName(this.modifierNames[0])
-			if (isUseTP && (requested?.IsEnemy(owner) ?? true)) {
-				this.Use(abil, requested)
+			if (isUseTP && source.IsEnemy()) {
+				this.Use(abil, source)
 				continue
 			}
-			if (allies && (requested?.IsEnemy(owner) ?? false)) {
+			if (
+				!this.CanBeCasted(owner, source, abil.AOERadius) ||
+				(allies && source.IsEnemy())
+			) {
 				continue
 			}
 			if (!delay) {
-				this.Use(abil, requested)
+				this.Use(abil, source)
 				continue
 			}
 			const delayKeyName = `delay_${owner.Index}`
 			const remainingTime = this.sleeper.RemainingSleepTime(delayKeyName) / 1000
 			if (remainingTime && remainingTime <= (1 / 30) * 2) {
-				this.Use(abil, requested)
+				this.Use(abil, source)
 				continue
 			}
 			if (!remainingTime) {
@@ -127,7 +130,7 @@ const bootstrap = new (class CAutoFive {
 		}
 	}
 
-	private shoudBeValid(modifier: Modifier) {
+	private shoudBeValidModifier(modifier: Modifier) {
 		return this.menu.State.value && this.modifierNames.includes(modifier.Name)
 	}
 
@@ -135,7 +138,7 @@ const bootstrap = new (class CAutoFive {
 		if (this.sleeper.Sleeping("UseAbility")) {
 			return
 		}
-		if (!abil.IsReady || closestUnit === undefined) {
+		if (!abil.IsReady || !this.isVaidSource(closestUnit)) {
 			return
 		}
 		abil.UseAbility()
@@ -144,10 +147,11 @@ const bootstrap = new (class CAutoFive {
 	}
 
 	private CanBeCasted(caster: Unit, closestUnit: Nullable<Unit>, radius: number) {
-		if (closestUnit === undefined) {
+		if (!this.isVaidSource(closestUnit)) {
 			return false
 		}
 		return (
+			caster.IsAlive &&
 			!caster.IsStunned &&
 			!caster.IsInvulnerable &&
 			!caster.IsInAbilityPhase &&
@@ -180,6 +184,15 @@ const bootstrap = new (class CAutoFive {
 		return this.heroes
 			.orderBy(x => caster.Distance2D(x))
 			.find(hero => caster !== hero)
+	}
+
+	private isVaidSource(source: Nullable<Unit>): source is Unit {
+		return (
+			source !== undefined &&
+			source.CanUseAbilities &&
+			source.IsAlive &&
+			source.IsVisible
+		)
 	}
 })()
 

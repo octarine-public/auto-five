@@ -16,11 +16,16 @@ export class MenuManager {
 		"panorama/images/spellicons/consumables/plus_high_five_png.vtex_c"
 
 	constructor(private readonly sleeper: Sleeper) {
-		const tree = this.baseNode.AddNode("Auto five", this.nodeIcon, "Use auto five", 0)
-		this.State = tree.AddToggle("State", true)
+		const tree = this.baseNode.AddNode(
+			"Auto five",
+			this.nodeIcon,
+			"Use auto five",
+			-1
+		)
+		this.State = tree.AddToggle("State", false)
 		this.UseWhenTP = tree.AddToggle(
 			"Use when TP",
-			true,
+			false,
 			"Use during your teleportation\nof an enemy is nearby"
 		)
 		this.OnlyAllyState = tree.AddToggle(

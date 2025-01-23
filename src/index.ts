@@ -13,9 +13,9 @@ import {
 
 import { MenuManager } from "./menu"
 
-const bootstrap = new (class CAutoFive {
+new (class CAutoFive {
 	private readonly sleeper = new Sleeper()
-	private readonly menu = new MenuManager(this.sleeper)
+	private readonly menu = new MenuManager()
 
 	private readonly heroes: Hero[] = []
 	private readonly modifiers: Modifier[] = []
@@ -26,8 +26,18 @@ const bootstrap = new (class CAutoFive {
 		"modifier_plus_high_five_requested"
 	]
 
-	public Tick() {
-		if (!this.menu.State.value) {
+	constructor() {
+		EventsSDK.on("PostDataUpdate", this.PostDataUpdate.bind(this))
+		EventsSDK.on("GameEnded", this.GameChanged.bind(this))
+		EventsSDK.on("GameStarted", this.GameChanged.bind(this))
+		EventsSDK.on("ModifierCreated", this.ModifierCreated.bind(this))
+		EventsSDK.on("ModifierRemoved", this.ModifierRemoved.bind(this))
+		EventsSDK.on("EntityCreated", this.EntityCreated.bind(this))
+		EventsSDK.on("EntityDestroyed", this.EntityDestroyed.bind(this))
+	}
+
+	public PostDataUpdate(delta: number) {
+		if (!this.menu.State.value || delta === 0) {
 			return
 		}
 		for (let index = this.modifiers.length - 1; index > -1; index--) {
@@ -169,11 +179,11 @@ const bootstrap = new (class CAutoFive {
 
 	private shouldBeValidSpell(spell: plus_high_five) {
 		const owner = spell.Owner
-		return owner !== undefined && owner.CanUseAbilities && !owner.IsEnemy()
+		return owner !== undefined && !owner.IsIllusion && !owner.IsEnemy()
 	}
 
 	private shouldBeValidHero(entity: Entity): entity is Hero {
-		return entity instanceof Unit && entity.IsHero && entity.CanUseAbilities
+		return entity instanceof Unit && entity.IsHero && !entity.IsIllusion
 	}
 
 	private getRequestedHero(caster: Unit) {
@@ -185,23 +195,9 @@ const bootstrap = new (class CAutoFive {
 	private isVaidSource(source: Nullable<Unit>): source is Unit {
 		return (
 			source !== undefined &&
-			source.CanUseAbilities &&
+			!source.IsIllusion &&
 			source.IsAlive &&
 			source.IsVisible
 		)
 	}
 })()
-
-EventsSDK.on("Tick", () => bootstrap.Tick())
-
-EventsSDK.on("GameEnded", () => bootstrap.GameChanged())
-
-EventsSDK.on("GameStarted", () => bootstrap.GameChanged())
-
-EventsSDK.on("ModifierCreated", mod => bootstrap.ModifierCreated(mod))
-
-EventsSDK.on("ModifierRemoved", mod => bootstrap.ModifierRemoved(mod))
-
-EventsSDK.on("EntityCreated", entity => bootstrap.EntityCreated(entity))
-
-EventsSDK.on("EntityDestroyed", entity => bootstrap.EntityDestroyed(entity))

@@ -1,3 +1,11 @@
 {
-	"DelayAutoFive": "Delay"
+	"Auto five": "自动击掌",
+	"Answers a high five\nwhen a hero nearby offers one": "附近的英雄发起击掌时\n自动回应",
+	"State": "状态",
+	"Use when TP": "传送时使用",
+	"Use during your teleportation\nif an enemy is nearby": "在你传送期间\n若附近有敌人则使用",
+	"Only allies": "仅限队友",
+	"Only answer a high five\noffered by an ally": "仅回应\n队友发起的击掌",
+	"Delay": "延迟",
+	"Delay before use (sec)": "使用前的延迟（秒）"
 }

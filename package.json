@@ -22,7 +22,7 @@
 	"scripts": {
 		"check-types": "npx tsc",
 		"check-types-watch": "npx tsc --watch",
-		"check-circular": "npx madge --circular scripts/",
+		"check-circular": "npx madge --circular src/index.ts",
 		"upgrade-pack": "yarn upgrade-interactive --latest",
 		"lint": "eslint -c .eslintrc.json --ext .ts --fix ."
 	},
@@ -33,5 +33,9 @@
 	},
 	"engines": {
 		"node": ">=18"
-	}
+	},
+	"octarineBundle": true,
+	"octarineMinimize": true,
+	"octarineObfuscate": true,
+	"octarineTreeShaking": true
 }

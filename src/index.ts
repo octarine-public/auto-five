@@ -1,17 +1,11 @@
 import "./translations"
 
-import {
-	Entity,
-	EventsSDK,
-	GameState,
-	Hero,
-	Modifier,
-	plus_high_five,
-	Sleeper,
-	Unit
-} from "github.com/octarine-public/wrapper/index"
-
 import { MenuManager } from "./menu"
+
+/** The buff of a hero channelling a teleport. */
+const Teleporting = "modifier_teleporting"
+/** The buff of a hero holding a high five out, waiting for someone to answer it. */
+const Requested = "modifier_plus_high_five_requested"
 
 new (class CAutoFive {
 	private readonly sleeper = new Sleeper()
@@ -20,11 +14,8 @@ new (class CAutoFive {
 	private readonly heroes: Hero[] = []
 	private readonly modifiers: Modifier[] = []
 	private readonly spells: plus_high_five[] = []
-
-	private readonly modifierNames = [
-		"modifier_teleporting",
-		"modifier_plus_high_five_requested"
-	]
+	/** When each of our heroes may answer, once the delay set in the menu has run out. */
+	private readonly readyAt = new Map<plus_high_five, number>()
 
 	constructor() {
 		EventsSDK.on("PostDataUpdate", this.PostDataUpdate.bind(this))
@@ -41,31 +32,26 @@ new (class CAutoFive {
 			return
 		}
 		for (let index = this.modifiers.length - 1; index > -1; index--) {
-			const modifier = this.modifiers[index],
-				caster = modifier.Caster,
-				requested = modifier.Parent
-			if (caster === undefined) {
+			const modifier = this.modifiers[index]
+			if (modifier.Caster === undefined) {
 				continue
 			}
-			switch (modifier.Name) {
-				case "modifier_teleporting":
-					this.UseAbility()
-					break
-				default:
-					this.UseAbility(requested)
-					break
+			if (modifier.Name === Teleporting) {
+				this.UseAbility()
+				continue
 			}
+			this.UseAbility(modifier.Parent)
 		}
 	}
 
 	public ModifierCreated(modifier: Modifier) {
-		if (this.modifierNames.includes(modifier.Name)) {
+		if (this.isTracked(modifier)) {
 			this.modifiers.push(modifier)
 		}
 	}
 
 	public ModifierRemoved(modifier: Modifier) {
-		if (this.modifierNames.includes(modifier.Name)) {
+		if (this.isTracked(modifier)) {
 			this.modifiers.remove(modifier)
 		}
 	}
@@ -91,90 +77,95 @@ new (class CAutoFive {
 
 	public GameChanged() {
 		this.sleeper.FullReset()
+		this.readyAt.clear()
 	}
 
-	protected UseAbility(source?: Nullable<Unit>) {
+	/**
+	 * Answers with every high five of ours that is ready: to the hero that asked for one, or,
+	 * with no one asking, to the hero closest to its owner.
+	 */
+	protected UseAbility(requested?: Nullable<Unit>) {
 		const useAtTP = this.menu.UseWhenTP.value,
-			delay = this.menu.Delay.value,
-			allies = this.menu.OnlyAllyState.value
+			onlyAllies = this.menu.OnlyAllyState.value
 		for (let index = this.spells.length - 1; index > -1; index--) {
 			const abil = this.spells[index]
 			if (!abil.IsReady) {
 				continue
 			}
 			const owner = abil.Owner
-			if (owner === undefined || source === owner || !owner.IsControllable) {
+			if (owner === undefined || requested === owner || !owner.IsControllable) {
 				continue
 			}
-			if (source === undefined) {
-				source = this.getRequestedHero(owner)
-			}
-			if (!this.isVaidSource(source)) {
+			const target = requested ?? this.getClosestHero(owner)
+			if (!this.isValidTarget(target)) {
 				continue
 			}
-			// use only ability if owner is caster from teleporting, for requested enemy
-			const isUseTP = useAtTP && owner.HasBuffByName(this.modifierNames[0])
-			if (isUseTP && source.IsEnemy()) {
-				this.Use(abil, source)
+			// teleporting away, an enemy at hand is answered whatever the rest of the page says
+			if (useAtTP && target.IsEnemy() && owner.HasBuffByName(Teleporting)) {
+				this.Use(abil)
 				continue
 			}
-			if (
-				!this.CanBeCasted(owner, source, abil.AOERadius) ||
-				(allies && source.IsEnemy())
-			) {
+			if (!this.CanBeCasted(owner, target, abil.AOERadius)) {
+				this.readyAt.delete(abil)
 				continue
 			}
-			if (!delay) {
-				this.Use(abil, source)
+			if (onlyAllies && target.IsEnemy()) {
 				continue
 			}
-			const delayKeyName = `delay_${owner.Index}`
-			const remainingTime = this.sleeper.RemainingSleepTime(delayKeyName) / 1000
-			if (remainingTime && remainingTime <= (1 / 30) * 2) {
-				this.Use(abil, source)
-				continue
-			}
-			if (!remainingTime) {
-				this.sleeper.Sleep(delay * 1000, delayKeyName)
+			if (this.delayPassed(abil)) {
+				this.Use(abil)
 			}
 		}
 	}
 
-	private Use(abil: plus_high_five, closestUnit: Nullable<Unit>) {
-		if (this.sleeper.Sleeping("UseAbility")) {
-			return
-		}
-		if (!abil.IsReady || !this.isVaidSource(closestUnit)) {
+	private Use(abil: plus_high_five) {
+		if (this.sleeper.Sleeping("UseAbility") || !abil.IsReady) {
 			return
 		}
 		abil.UseAbility()
-		const delay = (1 / 30) * 2 + GameState.Ping
-		this.sleeper.Sleep(delay, "UseAbility")
+		this.readyAt.delete(abil)
+		this.sleeper.Sleep(GameState.InputLag * 1000, "UseAbility")
 	}
 
-	private CanBeCasted(caster: Unit, closestUnit: Nullable<Unit>, radius: number) {
-		if (!this.isVaidSource(closestUnit)) {
-			return false
-		}
+	private CanBeCasted(caster: Unit, target: Unit, radius: number) {
 		return (
 			caster.IsAlive &&
 			!caster.IsStunned &&
 			!caster.IsInvulnerable &&
 			!caster.IsInAbilityPhase &&
-			closestUnit.Distance2D(caster) <= radius &&
-			!caster.HasBuffByName(this.modifierNames[1])
+			!caster.HasBuffByName(Requested) &&
+			target.Distance2D(caster) <= radius
 		)
 	}
 
-	private AbilityChanged(spell: plus_high_five, destroy?: boolean) {
-		if (!this.shouldBeValidSpell(spell)) {
-			return
+	/** Starts the delay the first time the high five could go, and lets it go once it has run. */
+	private delayPassed(abil: plus_high_five) {
+		const delay = this.menu.Delay.value
+		if (delay === 0) {
+			return true
 		}
+		const now = GameState.RawGameTime,
+			readyAt = this.readyAt.get(abil)
+		if (readyAt === undefined) {
+			this.readyAt.set(abil, now + delay)
+			return false
+		}
+		return now >= readyAt
+	}
+
+	private AbilityChanged(spell: plus_high_five, destroy?: boolean) {
 		if (destroy) {
 			this.spells.remove(spell)
+			this.readyAt.delete(spell)
 			return
 		}
-		this.spells.push(spell)
+		if (this.shouldBeValidSpell(spell)) {
+			this.spells.push(spell)
+		}
+	}
+
+	private isTracked(modifier: Modifier) {
+		return modifier.Name === Teleporting || modifier.Name === Requested
 	}
 
 	private shouldBeValidSpell(spell: plus_high_five) {
@@ -186,18 +177,18 @@ new (class CAutoFive {
 		return entity instanceof Unit && entity.IsHero && !entity.IsIllusion
 	}
 
-	private getRequestedHero(caster: Unit) {
+	private getClosestHero(caster: Unit) {
 		return this.heroes
-			.orderBy(x => caster.Distance2D(x))
-			.find(hero => caster !== hero)
+			.filter(hero => hero !== caster && this.isValidTarget(hero))
+			.orderBy(hero => caster.Distance2D(hero))[0]
 	}
 
-	private isVaidSource(source: Nullable<Unit>): source is Unit {
+	private isValidTarget(target: Nullable<Unit>): target is Unit {
 		return (
-			source !== undefined &&
-			!source.IsIllusion &&
-			source.IsAlive &&
-			source.IsVisible
+			target !== undefined &&
+			!target.IsIllusion &&
+			target.IsAlive &&
+			target.IsVisible
 		)
 	}
 })()
